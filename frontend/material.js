@@ -28,7 +28,7 @@ function controls_material_ready() {
 function chose_material(id) {
   chosen_material = materials[id]
   
-  if (chosen_material == "Leer") {
+  if (chosen_material.name == "Leer") {
     return
   }
   
@@ -209,6 +209,7 @@ function bill_material_usage() {
       return
     }
   } else if (chosen_material.name == "Bereits abgerechnet") {
+    data.Betrag = 0
     data.Wiederverwendet = true
   } else {
     if (chose_material.size == chosen_quantity) {
