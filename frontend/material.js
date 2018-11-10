@@ -28,10 +28,14 @@ function controls_material_ready() {
 function chose_material(id) {
   chosen_material = materials[id]
   
+  if (chosen_material == "Leer") {
+    return
+  }
+  
   $('#material_modal').modal('toggle')
   
   if (chosen_material.name == "Restekiste") {
-    $('#restekiste_spende')[0].value = "0,20 €"
+    $('#restekiste_spende')[0].value = (chosen_material.price_recommendation/100) + " €"
     $('#restekiste_modal').modal('toggle')
     return
   }
@@ -94,15 +98,14 @@ function chose_quantity(quantity) {
 }
 
 function update_materials() {
-  //$.get(server_address + '/lasercutter_materials', function(data, status){
-    // Testing start
-    /* 
+  $.get(server_address + '/lasercutter_materials', function(data, status){
+    
     if (status != 'success') {
       return
     }
     
     materials = data
-    */
+    /*
     materials = JSON.parse(`[
     {"name": "MDF 3mm01", "icon": "/img/material/mdf_3mm.png", "price_full": 300, "size": "3", "price_part": 100}, 
     {"name": "MDF 5mm02", "icon": "/img/material/mdf_5mm.png", "price_full": 150, "size": "6", "price_part": 50},
@@ -118,12 +121,12 @@ function update_materials() {
     {"name": "MDF 5mm12", "icon": "/img/material/mdf_5mm.png", "price_full": 150, "size": "6", "price_part": 50},
     {"name": "MDF 3mm13", "icon": "/img/material/mdf_3mm.png", "price_full": 300, "size": "3", "price_part": 100}, 
     {"name": "MDF 5mm14", "icon": "/img/material/mdf_5mm.png", "price_full": 150, "size": "6", "price_part": 50},
-    {"name": "MDF 3mm15", "icon": "/img/material/mdf_3mm.png", "price_full": 300, "size": "3", "price_part": 100}, 
-    {"name": "Restekiste", "icon": "/img/material/Restekiste.png", "price_recomendation": 20},
+    {"name": "Leer", "icon": "/img/material/empty.png"}, 
+    {"name": "Restekiste", "icon": "/img/material/Restekiste.png", "price_recommendation": 20},
     {"name": "Bereits abgerechnet", "icon": "/img/material/bereitsBerechnet.png"}, 
     {"name": "Abgesprochenes Material", "icon": "/img/material/zugelassen.png"}
     ]`)
-    // Testing end
+    */
     
     var html = '<tr>'  
     for (var i = 0; i < materials.length; i++) {
@@ -137,19 +140,18 @@ function update_materials() {
     }   
     html += '</tr>'
     $('#material_table')[0].innerHTML = html
-  //});
+  });
 }
 
 function update_current_user() {
-  //$.get(server_address + '/last_user_at_lasercutter/21042017freilab1337fooboardasgeht111', function(data, status){
-    // Testing start
-    /*
+  $.get(server_address + '/last_user_at_lasercutter/21042017freilab1337fooboardasgeht111', function(data, status){
+    
     if (status != 'success') {
       return
     }
-    */
-    data = JSON.parse('{"Mitgliedsname": "Max Musterman", "Guthaben": 3000}');
-    // Testing end
+    
+    // data = JSON.parse('{"Mitgliedsname": "Max Musterman", "Guthaben": 3000}');
+    
     if ( 'Mitgliedsname' in data) {
       current_user = data
       var balance = data.Guthaben
@@ -166,7 +168,7 @@ function update_current_user() {
       $('#user_name')[0].innerHTML = '';
       $('#user_balance')[0].innerHTML = '';
     }
-  //});
+  });
 }
 
 function bill_material_usage() {

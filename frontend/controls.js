@@ -451,14 +451,11 @@ function run_btn(){
     }
   }
   
-  // Testing
-  /*
   // check for machine
   if (!status_cache.serial) {
     $().uxmessage('error', "No machine.")
     return false
   }
-  */
   
   bill_material_usage()
   
