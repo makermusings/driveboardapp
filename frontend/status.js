@@ -254,14 +254,14 @@ var status_handlers = {
       $("#pause_glyph").hide()
       $("#play_glyph").show()
       // run button
-      $('#run_btn span.ladda-spinner').hide()
+      $('#material_btn span.ladda-spinner').hide()
     } else {
       // pause button
       $("#pause_btn").removeClass("btn-primary").addClass("btn-default")
       $("#play_glyph").hide()
       $("#pause_glyph").show()
       // run button
-      $('#run_btn span.ladda-spinner').show()
+      $('#rmaterial_btn span.ladda-spinner').show()
     }
   },
   'pos':function (status) {

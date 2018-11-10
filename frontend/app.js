@@ -78,7 +78,7 @@ $(document).ready(function(){
 
   // run_btn, make a ladda progress spinner button
   // http://msurguy.github.io/ladda-bootstrap/
-  app_run_btn = Ladda.create($("#run_btn")[0])
+  app_run_btn = Ladda.create($("#material_btn")[0])
   app_fill_btn = Ladda.create($("#addfill_btn")[0])
 
   // page visibility events

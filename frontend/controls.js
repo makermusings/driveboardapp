@@ -2,7 +2,6 @@
 
 function controls_ready() {
 
-
   // dropdown //////////////////////////////////////////////////////////////
 
   $("#info_btn").tooltip({placement:'bottom', delay: {show:1000, hide:100}})
@@ -113,69 +112,6 @@ function controls_ready() {
   $("#open_btn").tooltip({placement:'bottom', delay: {show:1000, hide:100}})
   $("#open_btn").click(function(e){
     $('#open_file_fld').trigger('click')
-    return false
-  })
-
-  $("#run_btn").tooltip({placement:'bottom', delay: {show:1000, hide:100}})
-  $("#run_btn").click(function(e){
-    jobhandler.passes = passes_get_active()
-    // check for job
-    if (jobhandler.isEmpty()) {
-      $().uxmessage('notice', "Cannot run. No job loaded.")
-      return false
-    }
-    // check for passes
-    if (!jobhandler.hasPasses()) {
-      $().uxmessage('notice', "No passes assigned to this job.")
-      return false
-    }
-    // check for machine
-    if (!status_cache.serial) {
-      $().uxmessage('error', "No machine.")
-      return false
-    }
-    // button feedback
-    app_run_btn.start()
-    $('#boundary_btn').prop('disabled', true)
-    status_cache.ready = true  // prevent ready update
-    // save job to queue, in-place
-    var load_request = {
-      'job':jobhandler.getJson(),
-      'name':jobhandler.name,
-      'optimize':true,
-      // 'optimize':false,
-      'overwrite':true
-    }
-    request_post({
-      url:'/load',
-      data: load_request,
-      success: function (jobname) {
-        // $().uxmessage('notice', "Saved to queue: "+jobname)
-        // run job
-        request_get({
-          url:'/run/'+jobname,
-          success: function (data) {
-            // $().uxmessage('success', "Running job ...")
-          },
-          error: function (data) {
-            $().uxmessage('error', "/run error.")
-            app_run_btn.stop()
-          },
-          complete: function (data) {
-            // console.log("complete run")
-          }
-        })
-      },
-      error: function (data) {
-        $().uxmessage('error', "/load error.")
-        $().uxmessage('error', JSON.stringify(data), false)
-        app_run_btn.stop()
-      },
-      complete: function (data) {
-        status_cache.ready = undefined  // allow ready update
-        // console.log("complete load")
-      }
-    })
     return false
   })
 
@@ -365,7 +301,6 @@ function controls_ready() {
 
   // shortcut keys //////////////////////////////////////////////////////////
 
-
   Mousetrap.bind(['i'], function(e) {
       $('#info_btn').trigger('click')
       return false;
@@ -490,4 +425,87 @@ function controls_ready() {
       return false;
   })
 
+  controls_material_ready()
+  
+}
+
+function run_btn(){
+  jobhandler.passes = passes_get_active()
+  console.log("Passes:")
+  console.log(jobhandler.passes)
+  // check for job
+  if (jobhandler.isEmpty()) {
+    $().uxmessage('notice', "Cannot run. No job loaded.")
+    return false
+  }
+  // check for passes
+  if (!jobhandler.hasPasses()) {
+    $().uxmessage('notice', "No passes assigned to this job.")
+    return false
+  }
+  // check for power
+  for (i = 0; i < jobhandler.passes.length; ++i) {
+    var pass = jobhandler.passes[i]
+    if ( pass.intensity / pass.feedrate > 0.5) {
+      $().uxmessage('error', "power/speed muss < 0.5 sein")
+    }
+  }
+  
+  // Testing
+  /*
+  // check for machine
+  if (!status_cache.serial) {
+    $().uxmessage('error', "No machine.")
+    return false
+  }
+  */
+  
+  bill_material_usage()
+  
+  return false
+}
+
+function run_btn_start() {
+  jobhandler.passes = passes_get_active()
+  app_run_btn.start()
+  $('#boundary_btn').prop('disabled', true)
+  status_cache.ready = true  // prevent ready update
+  // save job to queue, in-place
+  var load_request = {
+    'job':jobhandler.getJson(),
+    'name':jobhandler.name,
+    'optimize':true,
+    // 'optimize':false,
+    'overwrite':true
+  }
+  request_post({
+    url:'/load',
+    data: load_request,
+    success: function (jobname) {
+      // $().uxmessage('notice', "Saved to queue: "+jobname)
+      // run job
+      request_get({
+        url:'/run/'+jobname,
+        success: function (data) {
+          // $().uxmessage('success', "Running job ...")
+        },
+        error: function (data) {
+          $().uxmessage('error', "/run error.")
+          app_run_btn.stop()
+        },
+        complete: function (data) {
+          // console.log("complete run")
+        }
+      })
+    },
+    error: function (data) {
+      $().uxmessage('error', "/load error.")
+      $().uxmessage('error', JSON.stringify(data), false)
+      app_run_btn.stop()
+    },
+    complete: function (data) {
+      status_cache.ready = undefined  // allow ready update
+      // console.log("complete load")
+    }
+  })
 }
