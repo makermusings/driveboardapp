@@ -196,11 +196,11 @@ function controls_ready() {
 
   $("#homing_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
   $("#homing_btn").click(function(e){
-    request_get({
+	  $('#offset_reset_btn').trigger('click')
+      request_get({
       url:'/homing',
       success: function (data) {
         $().uxmessage('notice', "Homing ...")
-		$('#offset_reset_btn').trigger('click')
       }
     })
     return false
