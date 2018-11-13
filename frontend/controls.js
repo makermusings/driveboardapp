@@ -553,7 +553,7 @@ function run_btn(){
   // check for power
   for (i = 0; i < jobhandler.passes.length; ++i) {
     var pass = jobhandler.passes[i]
-    if ( pass.intensity / pass.feedrate > 0.5) {
+    if ( pass.intensity / pass.feedrate >= 0.5) {
       $().uxmessage('error', "power/speed muss < 0.5 sein")
     }
   }
