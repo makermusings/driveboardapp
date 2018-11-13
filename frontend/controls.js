@@ -200,6 +200,7 @@ function controls_ready() {
       url:'/homing',
       success: function (data) {
         $().uxmessage('notice', "Homing ...")
+		$('#offset_reset_btn').trigger('click')
       }
     })
     return false
@@ -235,28 +236,22 @@ function controls_ready() {
     }
   })
 
-  $("#makeOffset_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
-  $("#makeOffset_btn").click(function(e){
+  $("#offset_set_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
+  $("#offset_set_btn").click(function(e){
     if (!$(this).hasClass('disabled')) {
       jobview_jogLayer.visible = false
+	  jobview_moveLayer.visible = false
       $(".tool_extra_btn").hide()
-      var x_in = Math.round(parseFloat(document.getElementById("x_input").value)*1000)/1000
-      var y_in = Math.round(parseFloat(document.getElementById("y_input").value)*1000)/1000
-      tools_toffset.makeOffset()
-      $("#offset_reset_btn").show()
-      jobview_moveLayer.visible = false
+      tools_toffset.offset_set()
     } else {
       setTimeout(function(){
         $('#select_btn').trigger('click')
       },500)
     }
-    // the head should be at the origin of the new offset, but there might be a
-    // mismatch between actual head position and the position stored in internal
-    // variables.
-    //request_absolute_move(0, 0, 0, app_config_main.seekrate, "Moving to Origin.")
     return true
   })
 
+  /*
   $("#offset_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
   $("#offset_btn").click(function(e){
     if (!$(this).hasClass('disabled')) {
@@ -272,6 +267,7 @@ function controls_ready() {
     }
     return true
   })
+  */
 
   $("#offset_reset_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
   $("#offset_reset_btn").click(function(e){
@@ -279,7 +275,6 @@ function controls_ready() {
       url:'/absoffset/0/0/0',
       success: function (data) {
         $().uxmessage('notice', "Offset cleared.")
-        $("#offset_reset_btn").hide()
         $('#select_btn').trigger('click')
       }
     })
@@ -301,14 +296,31 @@ function controls_ready() {
     return true
   })
 
-  $("#moveTo_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
-  $("#moveTo_btn").click(function(e){
+  $("#moveBy_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
+  $("#moveBy_btn").click(function(e){
     if (!$(this).hasClass('disabled')) {
-      jobview_jogLayer.visible = false
-      $(".tool_extra_btn").hide()
-      var x_mm = Math.round(parseFloat(document.getElementById("x_input").value)*1000)/1000
-      var y_mm = Math.round(parseFloat(document.getElementById("y_input").value)*1000)/1000
-      request_absolute_move(x_mm, y_mm, 0, app_config_main.seekrate, "Moving to "+x_mm+","+y_mm)
+        jobview_jogLayer.visible = false
+        $(".tool_extra_btn").hide()
+        x_mm = Math.round(parseFloat(document.getElementById("x_input").value)*10)/10
+        y_mm = Math.round(parseFloat(document.getElementById("y_input").value)*10)/10
+        if (isNaN(x_mm)) {
+            x_mm = 0;
+        }
+        if (x_mm > app_config_main.workspace[0] - status_cache.pos[0] - status_cache.offset[0]) {
+          x_mm = Math.round((app_config_main.workspace[0] - status_cache.pos[0] - status_cache.offset[0])*10)/10
+        } else if (x_mm < - status_cache.pos[0] - status_cache.offset[0]) {
+          x_mm = Math.round((- status_cache.pos[0] - status_cache.offset[0])*10)/10
+        }
+        if (isNaN(y_mm)) {
+            y_mm = 0;
+        }
+        if (y_mm > app_config_main.workspace[1] - status_cache.pos[1] - status_cache.offset[1]) {
+          y_mm = Math.round((app_config_main.workspace[1] - status_cache.pos[1] - status_cache.offset[1])*10)/10
+        } else if (y_mm < - status_cache.pos[1] - status_cache.offset[1]) {
+          y_mm = Math.round((- status_cache.pos[1] - status_cache.offset[1])*10)/10
+        }
+          
+      request_relative_move(x_mm, y_mm, 0, app_config_main.seekrate, "Moving by "+x_mm+","+y_mm)
       status_cache.ready = undefined  // force status update
     } else {
       setTimeout(function(){
@@ -317,7 +329,6 @@ function controls_ready() {
     }
     return true
   })
-
 
   $("#jog_btn").tooltip({placement:'top', delay: {show:1000, hide:100}})
   $("#jog_btn").click(function(e){
@@ -336,26 +347,45 @@ function controls_ready() {
   })
 
   $("#x_input").keyup(function(e){
-    // make sure 'value' is digit only, by using a regexp and make sure its smaller than the workspace
-    value = document.getElementById("x_input").value.replace(/\D/g,'');
-    var x_mm = Math.abs(Math.round(parseFloat(value)*10)/10);
-    if (x_mm > app_config_main.workspace[0]) {
-      document.getElementById("x_input").value = app_config_main.workspace[0]
-    } else {
-      document.getElementById("x_input").value = x_mm
-    }
+    // make sure 'value' is a float with at most one decimal point and always smaller than the workspace
+	value = document.getElementById("x_input").value;
+	x_mm = value.match(/[-+]?[0-9]+[\.|,]?[0-9]?/);
+	// check for only minus sign as input. Otherwise, a single minus-sign without any following digit will quickly be removed, making it annoying to type negative values.
+	if (x_mm.toString().localeCompare('-') == 0) {
+		document.getElementById("x_input").value = x_mm
+	} else {	
+		if (isNaN(x_mm)) {
+			x_mm = 0;
+		}
+		if (x_mm > app_config_main.workspace[0] - status_cache.pos[0] - status_cache.offset[0]) {
+		  document.getElementById("x_input").value = Math.round((app_config_main.workspace[0] - status_cache.pos[0] - status_cache.offset[0])*10)/10
+		} else if (x_mm < - status_cache.pos[0] - status_cache.offset[0]) {
+		  document.getElementById("x_input").value = Math.round((- status_cache.pos[0] - status_cache.offset[0])*10)/10
+		} else {
+		  document.getElementById("x_input").value = x_mm
+		}
+	}
   })
 
   $("#y_input").keyup(function(e){
-    // make sure 'value' has less than 4 decimals, is positive and smaller than the
-    // workspace size
-    value = document.getElementById("x_input").value.replace(/\D/g,'');
-    var y_mm = Math.abs(Math.round(parseFloat(value)*10)/10)
-    if (y_mm > app_config_main.workspace[1]) {
-      document.getElementById("y_input").value = app_config_main.workspace[1]
-    } else {
-      document.getElementById("y_input").value = y_mm
-    }
+    // make sure 'value' is a float with at most one decimal point and always smaller than the workspace
+	value = document.getElementById("y_input").value;
+	y_mm = value.match(/[-+]?[0-9]+[\.|,]?[0-9]?/);
+	// check for only minus sign as input. Otherwise, a single minus-sign without any following digit will quickly be removed, making it annoying to type negative values.
+	if (y_mm.toString().localeCompare('-') == 0) {
+		document.getElementById("y_input").value = y_mm
+	} else {	
+		if (isNaN(y_mm)) {
+			y_mm = 0;
+		}
+		if (y_mm > app_config_main.workspace[1] - status_cache.pos[1] - status_cache.offset[1]) {
+		  document.getElementById("y_input").value = Math.round((app_config_main.workspace[1] - status_cache.pos[1] - status_cache.offset[1])*10)/10
+		} else if (y_mm < - status_cache.pos[1] - status_cache.offset[1]) {
+		  document.getElementById("y_input").value = Math.round((- status_cache.pos[1] - status_cache.offset[1])*10)/10
+		} else {
+		  document.getElementById("y_input").value = y_mm
+		}
+	}
   })
 
 
@@ -444,7 +474,7 @@ function controls_ready() {
   })
 
   Mousetrap.bind(['o'], function(e) {
-      $('#offset_btn').trigger('click')
+      $('#offset_set_btn').trigger('click')
       return false;
   })
 
@@ -454,7 +484,7 @@ function controls_ready() {
   })
 
   Mousetrap.bind(['ctrl+up'], function(e) {
-      request_relative_move(0, -1, 0, app_config_main.seekrate, "jogging up 1mm")
+      request_jog(0, -1, 0, "jogging up 1mm")
       return false;
   })
   Mousetrap.bind(['up'], function(e) {
@@ -466,7 +496,7 @@ function controls_ready() {
       return false;
   })
   Mousetrap.bind(['ctrl+down'], function(e) {
-      request_relative_move(0, 1, 0, app_config_main.seekrate, "jogging down 1mm")
+      request_jog(0, 1, 0, "jogging down 1mm")
       return false;
   })
   Mousetrap.bind(['down'], function(e) {
@@ -478,7 +508,7 @@ function controls_ready() {
       return false;
   })
   Mousetrap.bind(['ctrl+left'], function(e) {
-      request_relative_move(-1, 0, 0, app_config_main.seekrate, "jogging left 1mm")
+      request_jog(-1, 0, 0, "jogging left 1mm")
       return false;
   })
   Mousetrap.bind(['left'], function(e) {
@@ -490,7 +520,7 @@ function controls_ready() {
       return false;
   })
   Mousetrap.bind(['ctrl+right'], function(e) {
-      request_relative_move(1, 0, 0, app_config_main.seekrate, "jogging right 1mm")
+      request_jog(1, 0, 0, "jogging right 1mm")
       return false;
   })
   Mousetrap.bind(['right'], function(e) {

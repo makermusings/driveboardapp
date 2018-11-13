@@ -18,7 +18,7 @@ function status_init() {
     'firmver': undefined,
     'paused': false,
     'pos':[0.0, 0.0, 0.0],
-    'offset':[0.0, 0.0, 0.0],
+	'offset':[0.0, 0.0, 0.0],
     'underruns': 0,          // how many times machine is waiting for serial data
     'stackclear': Infinity,  // minimal stack clearance (must stay above 0)
     'progress': 1.0,
@@ -217,7 +217,9 @@ var status_handlers = {
       $('#boundary_btn').prop('disabled', false) // required
       $('#origin_btn').removeClass('disabled')
       $('#homing_btn').removeClass('disabled')
-      $('#offset_btn').removeClass('disabled')
+	  $('#moveBy_btn').removeClass('disabled')
+      $('#offset_set_btn').removeClass('disabled')
+	  $('#offset_reset_btn').removeClass('disabled')
       $('#motion_btn').removeClass('disabled')
       $('#jog_btn').removeClass('disabled')
     } else {
@@ -225,7 +227,9 @@ var status_handlers = {
       $('#boundary_btn').addClass('disabled')
       $('#origin_btn').addClass('disabled')
       $('#homing_btn').addClass('disabled')
-      $('#offset_btn').addClass('disabled')
+	  $('#moveBy_btn').addClass('disabled')
+      $('#offset_set_btn').addClass('disabled')
+	  $('#offset_reset_btn').addClass('disabled')
       $('#motion_btn').addClass('disabled')
       $('#jog_btn').addClass('disabled')
     }

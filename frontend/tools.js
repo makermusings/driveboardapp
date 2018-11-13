@@ -105,17 +105,18 @@ function tools_toffset_init() {
       jobview_offsetLayer.position = event.point
     }
   }
-  tools_toffset.makeOffset = function(e) {
-    // makeOffset is called when the user presses the makeOffset_btn. Sets the
+  tools_toffset.offset_set = function(e) {
+    // offset_set is called when the user presses the offset_set_btn. Sets the
     // current position of the head as the new offset.
     var x = status_cache.pos[0] + status_cache.offset[0]
     var y = status_cache.pos[1] + status_cache.offset[1]
     request_get({
       url:'/absoffset/'+x+'/'+y+'/0',
       success: function (data) {
-        $().uxmessage('notice', "Offset set to current position: "+x+","+y)
-        //jobview_offsetLayer.position = new paper.Point(x,y)
-        //request_absolute_move(x, y, 0, app_config_main.seekrate, "Moving to "+x+","+y)
+		$('#select_btn').trigger('click')
+		x_print = Math.round(x*10)/10;
+		y_print = Math.round(y*10)/10;
+        $().uxmessage('notice', "Offset set to current position: "+x_print+","+y_print)
       },
       error: function (data) {
         $().uxmessage('error', "Setting current position as offset not possible!")
@@ -151,10 +152,10 @@ function tools_tmove_init() {
       $().uxmessage('error', "No machine.")
       return
     }
-    var x_mm = Math.ceil(event.point.x/jobview_mm2px-status_cache.offset[0])
-    var y_mm = Math.ceil(event.point.y/jobview_mm2px-status_cache.offset[1])
+	// round to 100um increments
+    var x_mm = Math.round((event.point.x/jobview_mm2px-status_cache.offset[0])*10)/10
+    var y_mm = Math.round((event.point.y/jobview_mm2px-status_cache.offset[1])*10)/10
     request_absolute_move(x_mm, y_mm, 0, app_config_main.seekrate, "Moving to "+x_mm+","+y_mm)
-    // $('#select_btn').trigger('click')
     status_cache.ready = undefined  // force status update
     // setTimeout(function(){
     //   jobview_moveLayer.visible = false
@@ -413,7 +414,7 @@ function tools_tpos_init() {
   posText.fillColor = 'black';
   posText.opacity = 0.5
   posText.fontSize = jobview_height*0.025;
-  posText.content = '(XXX,xx; YYY,yy)';
+  posText.content = '(X: XXX,x; Y: YYY,y)';
   group.addChild(posText)
   jobview_posLayer.visible = true
 }
