@@ -555,6 +555,7 @@ function run_btn(){
     var pass = jobhandler.passes[i]
     if ( pass.intensity / pass.feedrate >= 0.5) {
       $().uxmessage('error', "power/speed muss < 0.5 sein")
+	  return false
     }
   }
   
