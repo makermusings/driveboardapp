@@ -212,7 +212,7 @@ function bill_material_usage() {
     data.Betrag = 0
     data.Wiederverwendet = true
   } else {
-    if (chose_material.size == chosen_quantity) {
+    if (chosen_material.size == chosen_quantity) {
       data.Betrag = -chosen_material.price_full 
     } else {
       data.Betrag = -chosen_material.price_part * chosen_quantity
