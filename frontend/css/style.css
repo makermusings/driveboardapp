@@ -143,6 +143,12 @@ div.log_error {
   margin: 5px;
 }
 
+.material_quantity_1 {
+  height: 300px;
+  width: 600px;
+  line-height: 300px;
+}
+
 .material_quantity_3 {
   height: 300px;
   width: 200px;

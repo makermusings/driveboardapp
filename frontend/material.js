@@ -34,6 +34,11 @@ function chose_material(id) {
   
   $('#material_modal').modal('toggle')
   
+  var run_btns = document.getElementsByClassName('run_btn')
+  for (var i = 0; i < run_btns.length; i++) {
+    run_btns[i].disabled = false;
+  }
+  
   if (chosen_material.name == "Restekiste") {
     $('#restekiste_spende')[0].value = (chosen_material.price_recommendation/100) + " €"
     $('#restekiste_modal').modal('toggle')
@@ -55,7 +60,11 @@ function chose_material(id) {
   }
   chosen_max_quantity = chosen_material.size;
   chose_quantity(0);
-  if (chosen_max_quantity == 3) {
+  if (chosen_max_quantity == 1) {
+    var material_quantities = document.getElementsByClassName('material_quantity_1')
+    material_quantities[0].innerHTML = '<p>1<br>' + (chosen_material.price_full/100).toFixed(2) + ' €</p>'
+    $('#material_quantity_1_modal').modal('toggle')
+  } else if (chosen_max_quantity == 3) {
     var material_quantities = document.getElementsByClassName('material_quantity_3')
     for (var i = 0; i < 2; i++) {
       material_quantities[i].innerHTML = '<p>' + (i+1) + '/3<br>' + (chosen_material.price_part*(i+1)/100).toFixed(2) + ' €</p>'
@@ -75,7 +84,9 @@ function chose_material(id) {
 function chose_quantity(quantity) {
   chosen_quantity = quantity
   var material_quantyties = undefined
-  if (chosen_max_quantity == 3) {
+  if (chosen_max_quantity == 1) {
+    material_quantyties = document.getElementsByClassName("material_quantity_1")
+  } else if (chosen_max_quantity == 3) {
     material_quantyties = document.getElementsByClassName("material_quantity_3")
   } else {
     material_quantyties = document.getElementsByClassName("material_quantity_6")
