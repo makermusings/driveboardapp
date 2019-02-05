@@ -244,6 +244,8 @@ function bill_material_usage() {
         $('#abgesprochen_modal').modal('toggle')
       } else if (chosen_material.name == "Bereits abgerechnet") {
         $('#wiederverwendet_modal').modal('toggle')
+      } else if (chosen_max_quantity == 1) {
+        $('#material_quantity_1_modal').modal('toggle')
       } else if (chosen_max_quantity == 3) {
         $('#material_quantity_3_modal').modal('toggle')
       } else {
