@@ -77,18 +77,8 @@ function fills_add_by_item(idx, callback) {
     var newcolor
     var fillcolor = new paper.Color(color)
     var jobcolors = jobhandler.getAllColors()
-    while (true) {
-      if (fillcolor.brightness > 0.5) {
-        fillcolor.brightness -= 0.3+0.1*Math.random()
-      } else {
-        fillcolor.brightness += 0.3+0.1*Math.random()
-      }
-      fillcolor.hue += 10+5*Math.random()
-      newcolor = fillcolor.toCSS(true)
-      if (jobcolors.indexOf(newcolor) == -1) {
-        break
-      }
-    }
+    fillcolor.setBlue(fillcolor.blue + 1.0/25)
+    newcolor = fillcolor.toCSS(true)
     // add to jobhandler
     jobhandler.defs.push({"kind":"fill", "data":fillpolylines})
     jobhandler.items.push({"def":jobhandler.defs.length-1,
